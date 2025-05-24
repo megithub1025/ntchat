@@ -9,4 +9,5 @@ module.exports = {
         database: process.env.DB_NAME || 'ntchat_db', // Replace with your PostgreSQL database name
     },
     jwtSecret: process.env.JWT_SECRET || 'your-very-secret-key-that-should-be-in-env', // Keep consistent with authController and authMiddleware
+    liemsApiBaseUrl: process.env.LIEMS_API_BASE_URL || 'http://your-liems-api-ip-and-port', // Placeholder for LiEMS API base URL
 };

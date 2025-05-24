@@ -1,5 +1,5 @@
 const db = require('./db'); // PostgreSQL connection module
-const { User } = require('./User'); // Assuming User class definition is moved or not strictly needed here
+const User = require('./User'); // Import the User class AT THE TOP
 
 // Function to add a new user to the database
 const createUser = async (username, email, hashedPassword, roles = ['user']) => {
@@ -103,16 +103,5 @@ module.exports = {
     // User class is not directly used by controller, but useful for consistent object structure
 };
 
-// Define User class (can be in a separate file e.g., User.js and imported)
-// For now, defining it here for simplicity in this step
-class User {
-    constructor(id, username, email, hashedPassword, roles, createdAt, updatedAt) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.hashedPassword = hashedPassword; // This will be populated for find operations
-        this.roles = roles || ['user'];
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-}
+// Ensure User is defined before it's used by any functions above.
+// const User = require('./User'); // Moved to the top
