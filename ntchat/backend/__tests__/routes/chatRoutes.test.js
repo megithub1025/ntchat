@@ -136,8 +136,8 @@ describe('Chat API Endpoints (/api/rooms)', () => {
             // Mock verifyToken to set req.user to the room creator (mockUser.id = 1)
             // This is already default setup in beforeEach
             
-            // Mock getRoomById to return the room, with creator_id matching mockUser.id
-            chatModel.getRoomById.mockResolvedValue({ id: roomId, name: 'Test Room', creator_id: mockUser.id });
+            // Mock getRoomById to return the room, with creatorId matching mockUser.id
+            chatModel.getRoomById.mockResolvedValue({ id: roomId, name: 'Test Room', creatorId: mockUser.id });
             // Mock findUserById for the user being added
             userModel.findUserById.mockResolvedValue({ id: userIdToAdd, username: 'userToAdd' });
             // Mock addUserToRoom to indicate success
@@ -210,7 +210,7 @@ describe('Chat API Endpoints (/api/rooms)', () => {
 
         it('should return 404 if user to add not found', async () => {
             const roomId = 1;
-            chatModel.getRoomById.mockResolvedValue({ id: roomId, name: 'Test Room', creator_id: mockUser.id });
+            chatModel.getRoomById.mockResolvedValue({ id: roomId, name: 'Test Room', creatorId: mockUser.id });
             userModel.findUserById.mockResolvedValue(null); // User to add does not exist
 
             const res = await request(app)

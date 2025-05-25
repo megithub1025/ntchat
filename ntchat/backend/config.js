@@ -1,4 +1,8 @@
-require('dotenv').config(); // Optional: if you want to use a .env file for configuration
+try {
+    require('dotenv').config(); // Optional: if you want to use a .env file for configuration
+} catch (e) {
+    console.warn("dotenv not configured or failed to load. Using environment variables or defaults.");
+}
 
 module.exports = {
     database: {

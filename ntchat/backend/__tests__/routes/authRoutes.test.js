@@ -9,6 +9,8 @@ const config = require('../../config');
 jest.mock('../../userModel');
 // Mock bcryptjs - let Jest auto-mock it, then we'll define specific mock implementations for functions in tests.
 jest.mock('bcryptjs');
+// Mock jsonwebtoken
+jest.mock('jsonwebtoken');
 // Mock db for server.js startup (to prevent actual DB connection attempts during test setup)
 jest.mock('../../db', () => ({
     query: jest.fn().mockResolvedValue({ rows: [], rowCount: 0 }), // Default mock for any query
@@ -28,7 +30,7 @@ describe('Auth API Endpoints', () => {
         userModel.findUserByUsername.mockReset();
         bcrypt.hash.mockReset();
         bcrypt.compare.mockReset();
-        // jwt.sign is part of the actual code, so we don't reset its mock directly here unless we are also mocking it
+        jwt.sign.mockReset(); // Reset jwt.sign mock before each test
     });
 
     describe('POST /auth/register', () => {
@@ -102,6 +104,7 @@ describe('Auth API Endpoints', () => {
 
             userModel.findUserByUsername.mockResolvedValue(storedUser);
             bcrypt.compare.mockResolvedValue(true); // Passwords match
+            jwt.sign.mockImplementation(() => 'mocked.jwt.token'); // Mock jwt.sign
 
             const res = await request(app)
                 .post('/auth/login')
@@ -109,15 +112,16 @@ describe('Auth API Endpoints', () => {
 
             expect(res.statusCode).toEqual(200);
             expect(res.body).toHaveProperty('message', 'Login successful');
-            expect(res.body).toHaveProperty('token');
+            expect(res.body).toHaveProperty('token', 'mocked.jwt.token'); // Check for the mocked token
             expect(res.body.user).toBeDefined();
             expect(res.body.user.username).toBe(loginCredentials.username);
             expect(userModel.findUserByUsername).toHaveBeenCalledWith(loginCredentials.username);
             expect(bcrypt.compare).toHaveBeenCalledWith(loginCredentials.password, storedUser.hashedPassword);
-            
-            // Optionally verify token structure (very basic)
-            const tokenParts = res.body.token.split('.');
-            expect(tokenParts).toHaveLength(3); // JWT has 3 parts
+            expect(jwt.sign).toHaveBeenCalledWith(
+                { userId: storedUser.id, username: storedUser.username, roles: storedUser.roles },
+                config.jwtSecret,
+                { expiresIn: '1h' }
+            );
         });
 
         it('should return 401 for invalid username', async () => {
